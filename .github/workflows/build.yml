@@ -1,0 +1,54 @@
+name: Build README
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions:  read
+      contents: write   # allow creating/updating Releases & uploading assets
+
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v4
+
+    - name: Init
+      run: |
+        chmod +x ./cicd/*.sh
+        ./cicd/setup.sh
+
+    - name: Build then run Test
+      run: |
+        ./cicd/build_tests.sh
+        ./cicd/run_tests.sh
+
+    - name: Build Demo
+      run: |
+        ./cicd/build_demo.sh
+
+    - name: Create or update Release
+      uses: ncipollo/release-action@v1.16.0
+      with:
+        tag:       ${{ github.ref_name }}
+        name:      Release ${{ github.ref_name }}
+        artifacts: artifacts/*
+        token:     ${{ secrets.GITHUB_TOKEN }}
+        allowUpdates: true
+        omitBody: true
+        omitBodyDuringUpdate: true
+        omitNameDuringUpdate: true
+        omitPrereleaseDuringUpdate: true
+        replacesArtifacts: true
+        removeArtifacts: false

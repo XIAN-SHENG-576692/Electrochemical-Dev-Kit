@@ -1,0 +1,12 @@
+#!/bin/sh
+
+CONFIG_SCRIPT_DIR=$(cd $(dirname $0); pwd)
+
+ARTIFACTS_DIR=${CONFIG_SCRIPT_DIR}/../artifacts
+
+BUILD_DIR=${CONFIG_SCRIPT_DIR}/../build
+
+DEMO_DIR=${BUILD_DIR}/demo
+DEOM_FILE=${DEMO_DIR}/Demo
+
+TESTS_DIR=${CONFIG_SCRIPT_DIR}/../tests
