@@ -8,6 +8,7 @@ This kit provides the core logic and utilities needed to streamline your electro
 
 - `cicd/`: Some scripts for CI/CD.
 - `demo/`: For CI/CD to build demo.
+- `dev/`: Some scripts for developer.
 - `src/`: The source codes.
 - `tests/`: For CI/CD to build tests.
 
@@ -27,5 +28,6 @@ You don't need to build everything from scratch to see it in action. Our **CI/CD
 ## Development and Testing
 
 If you wish to contribute or modify the kit, you can leverage the automated tools provided:
-- **Builds**: Use the scripts in `cicd/` to set up your local environment.
-- **Testing**: Run the scripts in `tests/` to validate any changes you make to the source code.
+- **Builds**: Use scripts in `cicd/` to set up your local environment.
+- **Developing**: Use scripts in `dev/` for an improved development experience.
+- **Testing**: Run scripts in `tests/` to validate any changes you make to the source code.

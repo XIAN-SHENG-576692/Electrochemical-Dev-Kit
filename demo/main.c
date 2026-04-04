@@ -1,3 +1,5 @@
+#include "electrochemical.h"
+
 #include <getopt.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -5,79 +7,99 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "electrochemical.h"
-
 /** ==================== Declaration ==================== */
 static const char *program_invocation_name;
 
 // Macro to stringize the given argument
-#define STRINGIZE_THIS(var) #var
+#define STRINGIZE_THIS(var)            #var
 #define STRINGIZE_THIS_DEFINITION(var) STRINGIZE_THIS(var)
 
 #define ENERGY_TYPE int16_t
-#define INDEX_TYPE uint8_t
-#define NUM_TYPE uint8_t
-#define RATE_TYPE float
-#define TIME_TYPE uint16_t
+#define INDEX_TYPE  uint8_t
+#define NUM_TYPE    uint8_t
+#define RATE_TYPE   float
+#define TIME_TYPE   uint16_t
 
-DECLARE_ELECTROCHEMICAL_CV(cv, ENERGY_TYPE, INDEX_TYPE, NUM_TYPE, RATE_TYPE, TIME_TYPE)
-DECLARE_ELECTROCHEMICAL_DPV(dpv, ENERGY_TYPE, INDEX_TYPE, NUM_TYPE, RATE_TYPE, TIME_TYPE)
-DECLARE_ELECTROCHEMICAL_RAMP(ramp, ENERGY_TYPE, INDEX_TYPE, NUM_TYPE, RATE_TYPE, TIME_TYPE)
+DECLARE_ELECTROCHEMICAL_CV(
+    cv,
+    ENERGY_TYPE,
+    INDEX_TYPE,
+    NUM_TYPE,
+    RATE_TYPE,
+    TIME_TYPE
+)
+DECLARE_ELECTROCHEMICAL_DPV(
+    dpv,
+    ENERGY_TYPE,
+    INDEX_TYPE,
+    NUM_TYPE,
+    RATE_TYPE,
+    TIME_TYPE
+)
+DECLARE_ELECTROCHEMICAL_RAMP(
+    ramp,
+    ENERGY_TYPE,
+    INDEX_TYPE,
+    NUM_TYPE,
+    RATE_TYPE,
+    TIME_TYPE
+)
 
-static cv_params cv = {0};
-static dpv_params dpv = {0};
+static cv_params   cv   = {0};
+static dpv_params  dpv  = {0};
 static ramp_params ramp = {0};
 
 #define FLAGS_SIZE_TYPE uint16_t
-#define FLAGS_TYPE uint16_t
+#define FLAGS_TYPE      uint16_t
 
-typedef struct {
-    const char **const name;
+typedef struct
+{
+    const char **const    name;
     const FLAGS_SIZE_TYPE size;
-    FLAGS_TYPE flags;
+    FLAGS_TYPE            flags;
 } optarg_flags;
 
 /** ==================== Run ==================== */
-#define RUN_TABLE \
-    X(cv, 0x01) \
-    X(dpv, 0x02) \
+#define RUN_TABLE                                                              \
+    X(cv, 0x01)                                                                \
+    X(dpv, 0x02)                                                               \
     X(ramp, 0x04)
 
 #define X(name, val) static const FLAGS_TYPE RUN_MASK_##name = val;
-    RUN_TABLE
+RUN_TABLE
 #undef X
 
 static const char *runs_name[] = {
-    #define X(name, val) #name,
-        RUN_TABLE
-    #undef X
+#define X(name, val) #name,
+    RUN_TABLE
+#undef X
 };
 
 static optarg_flags runs = {
-    .name = runs_name,
-    .size = sizeof(runs_name) / sizeof(char*),
+    .name  = runs_name,
+    .size  = sizeof(runs_name) / sizeof(char *),
     .flags = 0,
 };
 
 /** ==================== Show ==================== */
-#define SHOW_TABLE \
-    X(attributes, 0x01) \
-    X(results, 0x02) \
+#define SHOW_TABLE                                                             \
+    X(attributes, 0x01)                                                        \
+    X(results, 0x02)                                                           \
     X(structs, 0x04)
 
 #define X(name, val) static const FLAGS_TYPE SHOW_MASK_##name = val;
-    SHOW_TABLE
+SHOW_TABLE
 #undef X
 
 static const char *shows_name[] = {
-    #define X(name, val) #name,
-        SHOW_TABLE
-    #undef X
+#define X(name, val) #name,
+    SHOW_TABLE
+#undef X
 };
 
 static optarg_flags shows = {
-    .name = shows_name,
-    .size = sizeof(shows_name) / sizeof(char*),
+    .name  = shows_name,
+    .size  = sizeof(shows_name) / sizeof(char *),
     .flags = 0,
 };
 
@@ -85,6 +107,7 @@ static optarg_flags shows = {
 
 static void print_usage()
 {
+    // clang-format off
     printf("Usage:\n");
     printf("  %s [OPTIONS] --run <METHOD> --show <ITEMS> [PARAMETERS...]\n", program_invocation_name);
     printf("\n");
@@ -103,10 +126,12 @@ static void print_usage()
     printf("  %s --run dpv --show attributes,structs,results --e_begin 200 --e_pulse 51 --e_step 9 --t_pulse 8 --t_step 3 --n_step 3\n", program_invocation_name);
     printf("  %s --run ramp --show attributes,structs,results --e_begin 200 --e_step 9 --t_step 11 --n_step 3\n", program_invocation_name);
     printf("\n");
+    // clang-format on
 }
 
 static void print_help()
 {
+    // clang-format off
     printf("NOTE:\n");
     printf("  Use this demo to gain hands-on experience with the dev-kit.\n");
     printf("  Data type definitions in this demo:\n");
@@ -118,29 +143,35 @@ static void print_help()
     printf("\n");
 
     print_usage();
+    // clang-format on
 }
 
-static void print_structs(const char *const type_name, const char *const val_name, const void *const val, size_t size)
+static void print_structs(
+    const char *const type_name,
+    const char *const val_name,
+    const void *const val,
+    size_t            size
+)
 {
     printf("========== Structs ==========\n");
     printf("sizeof(%s): %ld\n", type_name, size);
 
-    for(size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
     {
-        printf("%s[%ld]: %02x\n", type_name, i, ((uint8_t*) val)[i]);
+        printf("%s[%ld]: %02x\n", type_name, i, ((uint8_t *)val)[i]);
     }
 
     printf("%s = *(%s*) (uint8_t[]) { ", val_name, type_name);
-    for(size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
     {
-        printf("0x%02x, ", ((uint8_t*) val)[i]);
+        printf("0x%02x, ", ((uint8_t *)val)[i]);
     }
     printf("};\n");
 
     printf("%s_hex_string: ", val_name);
-    for(size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
     {
-        printf("%02x", ((uint8_t*) val)[i]);
+        printf("%02x", ((uint8_t *)val)[i]);
     }
     printf("\n");
 }
@@ -148,13 +179,19 @@ static void print_structs(const char *const type_name, const char *const val_nam
 static void print_cv()
 {
     printf("========== CV ==========\n");
-    if(shows.flags & SHOW_MASK_structs)
+    if (shows.flags & SHOW_MASK_structs)
     {
-        print_structs(STRINGIZE_THIS(cv_params), STRINGIZE_THIS(cv), &cv, sizeof(cv_params));
+        print_structs(
+            STRINGIZE_THIS(cv_params),
+            STRINGIZE_THIS(cv),
+            &cv,
+            sizeof(cv_params)
+        );
     }
 
-    if(shows.flags & SHOW_MASK_attributes)
+    if (shows.flags & SHOW_MASK_attributes)
     {
+        // clang-format off
         printf("========== Simple Attributes ==========\n");
         printf("e_begin: %d\n", cv.e_begin);
         printf("e_step: %d\n", cv.e_step);
@@ -172,19 +209,20 @@ static void print_cv()
         printf("t_ramp: %d\n", t_ramp);
         TIME_TYPE t_total = cv_get_t_total(&cv);
         printf("t_total: %d\n", t_total);
+        // clang-format on
     }
 
-    if(shows.flags & SHOW_MASK_results)
+    if (shows.flags & SHOW_MASK_results)
     {
         printf("========== Results ==========\n");
         NUM_TYPE n_step_total = cv_get_n_step_total(&cv);
 
-        for(size_t i = 0; i < n_step_total; i++)
+        for (size_t i = 0; i < n_step_total; i++)
         {
             ENERGY_TYPE e_energy = cv_get_energy_by_index(&cv, i);
             printf("e_energy[%ld]: %d\n", i, e_energy);
         }
-        for(size_t i = 0; i < n_step_total; i++)
+        for (size_t i = 0; i < n_step_total; i++)
         {
             TIME_TYPE t_time = cv_get_time_by_index(&cv, i);
             printf("t_time[%ld]: %d\n", i, t_time);
@@ -195,13 +233,19 @@ static void print_cv()
 static void print_dpv()
 {
     printf("========== DPV ==========\n");
-    if(shows.flags & SHOW_MASK_structs)
+    if (shows.flags & SHOW_MASK_structs)
     {
-        print_structs(STRINGIZE_THIS(dpv_params), STRINGIZE_THIS(dpv), &dpv, sizeof(dpv_params));
+        print_structs(
+            STRINGIZE_THIS(dpv_params),
+            STRINGIZE_THIS(dpv),
+            &dpv,
+            sizeof(dpv_params)
+        );
     }
 
-    if(shows.flags & SHOW_MASK_attributes)
+    if (shows.flags & SHOW_MASK_attributes)
     {
+        // clang-format off
         printf("========== Simple Attributes ==========\n");
         printf("e_begin: %d\n", dpv.e_begin);
         printf("e_pulse: %d\n", dpv.e_pulse);
@@ -221,42 +265,67 @@ static void print_dpv()
         printf("t_interval: %d\n", t_interval);
         TIME_TYPE t_total = dpv_get_t_total(&dpv);
         printf("t_total: %d\n", t_total);
+        // clang-format on
     }
 
-    if(shows.flags & SHOW_MASK_results)
+    if (shows.flags & SHOW_MASK_results)
     {
         printf("========== Results ==========\n");
         NUM_TYPE n_step_total = dpv_get_n_step_total(&dpv);
 
-        for(size_t i = 0; i < n_step_total; i++)
+        for (size_t i = 0; i < n_step_total; i++)
         {
-            ENERGY_TYPE e_energy_all = dpv_get_energy_by_index(&dpv, i, ELECTROCHEMICAL_DPV_SELECTION_ALL);
+            ENERGY_TYPE e_energy_all = dpv_get_energy_by_index(
+                &dpv,
+                i,
+                ELECTROCHEMICAL_DPV_SELECTION_ALL
+            );
             printf("e_energy_all[%ld]: %d\n", i, e_energy_all);
         }
-        for(size_t i = 0; i < dpv.n_step; i++)
+        for (size_t i = 0; i < dpv.n_step; i++)
         {
-            ENERGY_TYPE e_energy_pulse = dpv_get_energy_by_index(&dpv, i, ELECTROCHEMICAL_DPV_SELECTION_PULSE);
+            ENERGY_TYPE e_energy_pulse = dpv_get_energy_by_index(
+                &dpv,
+                i,
+                ELECTROCHEMICAL_DPV_SELECTION_PULSE
+            );
             printf("e_energy_pulse[%ld]: %d\n", i, e_energy_pulse);
         }
-        for(size_t i = 0; i < dpv.n_step; i++)
+        for (size_t i = 0; i < dpv.n_step; i++)
         {
-            ENERGY_TYPE e_energy_step = dpv_get_energy_by_index(&dpv, i, ELECTROCHEMICAL_DPV_SELECTION_STEP);
+            ENERGY_TYPE e_energy_step = dpv_get_energy_by_index(
+                &dpv,
+                i,
+                ELECTROCHEMICAL_DPV_SELECTION_STEP
+            );
             printf("e_energy_step[%ld]: %d\n", i, e_energy_step);
         }
 
-        for(size_t i = 0; i < n_step_total; i++)
+        for (size_t i = 0; i < n_step_total; i++)
         {
-            TIME_TYPE t_time_all = dpv_get_time_by_index(&dpv, i, ELECTROCHEMICAL_DPV_SELECTION_ALL);
+            TIME_TYPE t_time_all = dpv_get_time_by_index(
+                &dpv,
+                i,
+                ELECTROCHEMICAL_DPV_SELECTION_ALL
+            );
             printf("t_time_all[%ld]: %d\n", i, t_time_all);
         }
-        for(size_t i = 0; i < dpv.n_step; i++)
+        for (size_t i = 0; i < dpv.n_step; i++)
         {
-            TIME_TYPE t_time_pulse = dpv_get_time_by_index(&dpv, i, ELECTROCHEMICAL_DPV_SELECTION_PULSE);
+            TIME_TYPE t_time_pulse = dpv_get_time_by_index(
+                &dpv,
+                i,
+                ELECTROCHEMICAL_DPV_SELECTION_PULSE
+            );
             printf("t_time_pulse[%ld]: %d\n", i, t_time_pulse);
         }
-        for(size_t i = 0; i < dpv.n_step; i++)
+        for (size_t i = 0; i < dpv.n_step; i++)
         {
-            TIME_TYPE t_time_step = dpv_get_time_by_index(&dpv, i, ELECTROCHEMICAL_DPV_SELECTION_STEP);
+            TIME_TYPE t_time_step = dpv_get_time_by_index(
+                &dpv,
+                i,
+                ELECTROCHEMICAL_DPV_SELECTION_STEP
+            );
             printf("t_time_step[%ld]: %d\n", i, t_time_step);
         }
     }
@@ -265,13 +334,19 @@ static void print_dpv()
 static void print_ramp()
 {
     printf("========== Ramp ==========\n");
-    if(shows.flags & SHOW_MASK_structs)
+    if (shows.flags & SHOW_MASK_structs)
     {
-        print_structs(STRINGIZE_THIS(ramp_params), STRINGIZE_THIS(ramp), &ramp, sizeof(ramp_params));
+        print_structs(
+            STRINGIZE_THIS(ramp_params),
+            STRINGIZE_THIS(ramp),
+            &ramp,
+            sizeof(ramp_params)
+        );
     }
 
-    if(shows.flags & SHOW_MASK_attributes)
+    if (shows.flags & SHOW_MASK_attributes)
     {
+        // clang-format off
         printf("========== Simple Attributes ==========\n");
         printf("e_begin: %d\n", ramp.e_begin);
         printf("e_step: %d\n", ramp.e_step);
@@ -285,17 +360,18 @@ static void print_ramp()
         printf("scan_rate: %f\n", scan_rate);
         TIME_TYPE t_total = ramp_get_t_total(&ramp);
         printf("t_total: %d\n", t_total);
+        // clang-format on
     }
 
-    if(shows.flags & SHOW_MASK_results)
+    if (shows.flags & SHOW_MASK_results)
     {
         printf("========== Results ==========\n");
-        for(size_t i = 0; i < ramp.n_step; i++)
+        for (size_t i = 0; i < ramp.n_step; i++)
         {
             ENERGY_TYPE e_energy = ramp_get_energy_by_index(&ramp, i);
             printf("e_energy[%ld]: %d\n", i, e_energy);
         }
-        for(size_t i = 0; i < ramp.n_step; i++)
+        for (size_t i = 0; i < ramp.n_step; i++)
         {
             TIME_TYPE t_time = ramp_get_time_by_index(&ramp, i);
             printf("t_time[%ld]: %d\n", i, t_time);
@@ -304,89 +380,100 @@ static void print_ramp()
 }
 
 /** ==================== Main ==================== */
-int main( int argc, char *argv[ ] )
+int main(int argc, char *argv[])
 {
     int c;
 
     program_invocation_name = argv[0];
 
-    if(argc < 2)
+    if (argc < 2)
     {
         print_usage();
         return -1;
     }
 
-    while (1) {
-        int option_index = 0;
+    while (1)
+    {
+        int                  option_index   = 0;
         static struct option long_options[] = {
-            {"e_begin", required_argument, 0,  0  },
-            {"e_pulse", required_argument, 0,  0  },
-            {"e_step",  required_argument, 0,  0  },
-            {"n_step",  required_argument, 0,  0  },
-            {"t_pulse", required_argument, 0,  0  },
-            {"t_step",  required_argument, 0,  0  },
-            {"help",    no_argument      , 0, 'h' },
-            {"run",     required_argument, 0,  0  },
-            {"show",    required_argument, 0,  0  },
-            {0, 0, 0, 0 }
+            {"e_begin", required_argument, 0,   0},
+            {"e_pulse", required_argument, 0,   0},
+            { "e_step", required_argument, 0,   0},
+            { "n_step", required_argument, 0,   0},
+            {"t_pulse", required_argument, 0,   0},
+            { "t_step", required_argument, 0,   0},
+            {   "help",       no_argument, 0, 'h'},
+            {    "run", required_argument, 0,   0},
+            {   "show", required_argument, 0,   0},
+            {        0,                 0, 0,   0}
         };
 
-        c = getopt_long(argc, argv, "h0",
-                long_options, &option_index);
-        if (c == -1) break;
+        c = getopt_long(argc, argv, "h0", long_options, &option_index);
+        if (c == -1)
+            break;
 
-        switch (c) {
+        switch (c)
+        {
             case 0:
-                if(strcmp(long_options[option_index].name, "e_begin") == 0)
+                if (strcmp(long_options[option_index].name, "e_begin") == 0)
                 {
-                    cv.e_begin = atoi(optarg);
-                    dpv.e_begin = atoi(optarg);
+                    cv.e_begin   = atoi(optarg);
+                    dpv.e_begin  = atoi(optarg);
                     ramp.e_begin = atoi(optarg);
-                } else if(strcmp(long_options[option_index].name, "e_pulse") == 0)
+                }
+                else if (strcmp(long_options[option_index].name, "e_pulse") == 0)
                 {
                     dpv.e_pulse = atoi(optarg);
-                } else if(strcmp(long_options[option_index].name, "e_step") == 0)
+                }
+                else if (strcmp(long_options[option_index].name, "e_step") == 0)
                 {
-                    cv.e_step = atoi(optarg);
-                    dpv.e_step = atoi(optarg);
+                    cv.e_step   = atoi(optarg);
+                    dpv.e_step  = atoi(optarg);
                     ramp.e_step = atoi(optarg);
-                } else if(strcmp(long_options[option_index].name, "n_step") == 0)
+                }
+                else if (strcmp(long_options[option_index].name, "n_step") == 0)
                 {
-                    cv.n_step = atoi(optarg);
-                    dpv.n_step = atoi(optarg);
+                    cv.n_step   = atoi(optarg);
+                    dpv.n_step  = atoi(optarg);
                     ramp.n_step = atoi(optarg);
-                } else if(strcmp(long_options[option_index].name, "t_pulse") == 0)
+                }
+                else if (strcmp(long_options[option_index].name, "t_pulse") == 0)
                 {
                     dpv.t_pulse = atoi(optarg);
-                } else if(strcmp(long_options[option_index].name, "t_step") == 0)
+                }
+                else if (strcmp(long_options[option_index].name, "t_step") == 0)
                 {
-                    cv.t_step = atoi(optarg);
-                    dpv.t_step = atoi(optarg);
+                    cv.t_step   = atoi(optarg);
+                    dpv.t_step  = atoi(optarg);
                     ramp.t_step = atoi(optarg);
-                } else if(strcmp(long_options[option_index].name, "run") == 0)
+                }
+                else if (strcmp(long_options[option_index].name, "run") == 0)
                 {
                     const char *const delim = ",";
-                    const char *token = strtok(optarg, delim);
-                    
-                    while (token != NULL) {
-                        for(size_t i = 0; i < runs.size; i++)
+                    const char       *token = strtok(optarg, delim);
+
+                    while (token != NULL)
+                    {
+                        for (size_t i = 0; i < runs.size; i++)
                         {
-                            if(strcmp(token, runs.name[i]) == 0)
+                            if (strcmp(token, runs.name[i]) == 0)
                             {
                                 runs.flags |= 1 << i;
                             }
                         }
                         token = strtok(NULL, delim);
                     }
-                } else if(strcmp(long_options[option_index].name, "show") == 0)
+                }
+                else if (strcmp(long_options[option_index].name, "show") == 0)
                 {
                     const char *const delim = ",";
-                    const char *token = strtok(optarg, delim);
-                    
-                    while (token != NULL) {
-                        for(size_t i = 0; i < shows.size; i++)
+                    const char       *token = strtok(optarg, delim);
+
+                    while (token != NULL)
+                    {
+                        for (size_t i = 0; i < shows.size; i++)
                         {
-                            if(strcmp(token, shows.name[i]) == 0)
+                            if (strcmp(token, shows.name[i]) == 0)
                             {
                                 shows.flags |= 1 << i;
                             }
@@ -410,17 +497,17 @@ int main( int argc, char *argv[ ] )
         }
     }
 
-    if(runs.flags & RUN_MASK_cv)
+    if (runs.flags & RUN_MASK_cv)
     {
         print_cv();
     }
 
-    if(runs.flags & RUN_MASK_dpv)
+    if (runs.flags & RUN_MASK_dpv)
     {
         print_dpv();
     }
 
-    if(runs.flags & RUN_MASK_ramp)
+    if (runs.flags & RUN_MASK_ramp)
     {
         print_ramp();
     }
