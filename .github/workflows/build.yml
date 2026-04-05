@@ -46,13 +46,22 @@ jobs:
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
-        ./cicd/update_latest_tag.sh
+        git tag -f latest
+        git push origin --tags --force
 
-    - name: Create or update Release
+    - name: Create or update Release v*
       uses: ncipollo/release-action@v1.16.0
       with:
         tag:       ${{ github.ref_name }}
         name:      Release ${{ github.ref_name }}
+        artifacts: artifacts/*
+        token:     ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create or update Release latest
+      uses: ncipollo/release-action@v1.16.0
+      with:
+        tag:       latest
+        name:      Release latest
         artifacts: artifacts/*
         token:     ${{ secrets.GITHUB_TOKEN }}
         allowUpdates: true
@@ -61,4 +70,4 @@ jobs:
         omitNameDuringUpdate: true
         omitPrereleaseDuringUpdate: true
         replacesArtifacts: true
-        removeArtifacts: false
+        removeArtifacts: true
