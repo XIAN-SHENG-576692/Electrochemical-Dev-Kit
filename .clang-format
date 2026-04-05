@@ -23,5 +23,7 @@ IndentWidth: 4
 JavaScriptQuotes: Double
 KeepEmptyLinesAtTheStartOfBlocks: false
 Language: Cpp
+TabWidth: 4
+UseTab: Never
 
 ---

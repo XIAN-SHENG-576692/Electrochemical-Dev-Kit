@@ -1,3 +1,9 @@
+/**
+ * @author    XIAN-SHENG CHEN
+ * @date      April 2026
+ *
+ * Copyright (c) 2026 XIAN-SHENG CHEN. All Rights Reserved.
+ **/
 #pragma once
 
 #ifdef __cplusplus
