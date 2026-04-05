@@ -16,5 +16,5 @@ target_sources(demo
 # Libraries
 target_link_libraries(demo
     PRIVATE
-        Electrochemical
+        electrochemical
 )

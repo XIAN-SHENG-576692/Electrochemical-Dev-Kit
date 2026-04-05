@@ -16,7 +16,7 @@ target_sources(tests
 # Libraries
 target_link_libraries(tests
     PRIVATE
-        Electrochemical
+        electrochemical
 )
 
 function(AddTest op)
