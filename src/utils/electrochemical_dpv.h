@@ -78,6 +78,14 @@ extern "C"
         const name##_params *const         p,                                  \
         index_type                         index,                              \
         ELECTROCHEMICAL_DPV_SELECTION_ENUM selection                           \
+    );                                                                         \
+    inline void name##_set_n_step_by_e_end(                                    \
+        name##_params *const p,                                                \
+        energy_type          e_end                                             \
+    );                                                                         \
+    inline void name##_set_t_step_by_scan_rate(                                \
+        name##_params *const p,                                                \
+        rate_type            scan_rate                                         \
     );
 
 /**
@@ -162,6 +170,24 @@ extern "C"
             default:                                                           \
                 return 0.0;                                                    \
         }                                                                      \
+    }                                                                          \
+    inline void name##_set_n_step_by_e_end(                                    \
+        name##_params *const p,                                                \
+        energy_type          e_end                                             \
+    )                                                                          \
+    {                                                                          \
+        p->n_step = (e_end - p->e_begin) / p->e_step;                          \
+        return;                                                                \
+    }                                                                          \
+    inline void name##_set_t_step_by_scan_rate(                                \
+        name##_params *const p,                                                \
+        rate_type            scan_rate                                         \
+    )                                                                          \
+    {                                                                          \
+        rate_type e_step;                                                      \
+        e_step    = (p->e_step > 0) ? p->e_step : -p->e_step;                  \
+        p->t_step = (time_type)(e_step / scan_rate) - p->t_pulse;              \
+        return;                                                                \
     }
 
 #ifdef __cplusplus

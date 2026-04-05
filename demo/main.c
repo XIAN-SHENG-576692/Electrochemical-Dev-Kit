@@ -147,8 +147,11 @@ static void print_usage()
     printf("  %s -h\n", program_invocation_name);
     printf("  %s --help\n", program_invocation_name);
     printf("  %s --run cv --show attributes,structs,results --e_begin 200 --e_step 9 --t_step 11 --n_step 3\n", program_invocation_name);
-    printf("  %s --run dpv --show attributes,structs,results --e_begin 200 --e_pulse 51 --e_step 9 --t_pulse 8 --t_step 3 --n_step 3\n", program_invocation_name);
+    printf("  %s --run cv --show attributes,structs,results --e_begin 200 --e_step 9 --e_vertex 300 --scan_rate 2\n", program_invocation_name);
+    printf("  %s --run dpv --show attributes,structs,results --e_begin 200 --e_pulse 51 --e_step 9 --t_pulse 3 --t_step 8 --n_step 3\n", program_invocation_name);
+    printf("  %s --run dpv --show attributes,structs,results --e_begin 200 --e_pulse 51 --e_step 9 --t_pulse 3 --e_end 300 --scan_rate 2\n", program_invocation_name);
     printf("  %s --run ramp --show attributes,structs,results --e_begin 200 --e_step 9 --t_step 11 --n_step 3\n", program_invocation_name);
+    printf("  %s --run ramp --show attributes,structs,results --e_begin 200 --e_step 9 --e_end 300 --scan_rate 2\n", program_invocation_name);
     printf("\n");
     // clang-format on
 }
@@ -420,16 +423,19 @@ int main(int argc, char *argv[])
     {
         int                  option_index   = 0;
         static struct option long_options[] = {
-            {"e_begin", required_argument, 0,   0},
-            {"e_pulse", required_argument, 0,   0},
-            { "e_step", required_argument, 0,   0},
-            { "n_step", required_argument, 0,   0},
-            {"t_pulse", required_argument, 0,   0},
-            { "t_step", required_argument, 0,   0},
-            {   "help",       no_argument, 0, 'h'},
-            {    "run", required_argument, 0,   0},
-            {   "show", required_argument, 0,   0},
-            {        0,                 0, 0,   0}
+            {  "e_begin", required_argument, 0,   0},
+            {    "e_end", required_argument, 0,   0},
+            {  "e_pulse", required_argument, 0,   0},
+            {   "e_step", required_argument, 0,   0},
+            { "e_vertex", required_argument, 0,   0},
+            {     "help",       no_argument, 0, 'h'},
+            {   "n_step", required_argument, 0,   0},
+            {      "run", required_argument, 0,   0},
+            {"scan_rate", required_argument, 0,   0},
+            {     "show", required_argument, 0,   0},
+            {  "t_pulse", required_argument, 0,   0},
+            {   "t_step", required_argument, 0,   0},
+            {          0,                 0, 0,   0}
         };
 
         c = getopt_long(argc, argv, "h0", long_options, &option_index);
@@ -445,6 +451,12 @@ int main(int argc, char *argv[])
                     dpv.e_begin  = atoi(optarg);
                     ramp.e_begin = atoi(optarg);
                 }
+                else if (strcmp(long_options[option_index].name, "e_end") == 0)
+                {
+                    ENERGY_TYPE e_end = atoi(optarg);
+                    dpv_set_n_step_by_e_end(&dpv, e_end);
+                    ramp_set_n_step_by_e_end(&ramp, e_end);
+                }
                 else if (strcmp(long_options[option_index].name, "e_pulse") == 0)
                 {
                     dpv.e_pulse = atoi(optarg);
@@ -455,21 +467,16 @@ int main(int argc, char *argv[])
                     dpv.e_step  = atoi(optarg);
                     ramp.e_step = atoi(optarg);
                 }
+                else if (strcmp(long_options[option_index].name, "e_vertex") == 0)
+                {
+                    ENERGY_TYPE e_vertex = atoi(optarg);
+                    cv_set_n_step_by_e_vertex(&cv, e_vertex);
+                }
                 else if (strcmp(long_options[option_index].name, "n_step") == 0)
                 {
                     cv.n_step   = atoi(optarg);
                     dpv.n_step  = atoi(optarg);
                     ramp.n_step = atoi(optarg);
-                }
-                else if (strcmp(long_options[option_index].name, "t_pulse") == 0)
-                {
-                    dpv.t_pulse = atoi(optarg);
-                }
-                else if (strcmp(long_options[option_index].name, "t_step") == 0)
-                {
-                    cv.t_step   = atoi(optarg);
-                    dpv.t_step  = atoi(optarg);
-                    ramp.t_step = atoi(optarg);
                 }
                 else if (strcmp(long_options[option_index].name, "run") == 0)
                 {
@@ -488,6 +495,13 @@ int main(int argc, char *argv[])
                         token = strtok(NULL, delim);
                     }
                 }
+                else if (strcmp(long_options[option_index].name, "scan_rate") == 0)
+                {
+                    RATE_TYPE scan_rate = atof(optarg);
+                    cv_set_t_step_by_scan_rate(&cv, scan_rate);
+                    dpv_set_t_step_by_scan_rate(&dpv, scan_rate);
+                    ramp_set_t_step_by_scan_rate(&ramp, scan_rate);
+                }
                 else if (strcmp(long_options[option_index].name, "show") == 0)
                 {
                     const char *const delim = ",";
@@ -504,6 +518,21 @@ int main(int argc, char *argv[])
                         }
                         token = strtok(NULL, delim);
                     }
+                }
+                else if (strcmp(long_options[option_index].name, "t_pulse") == 0)
+                {
+                    dpv.t_pulse = atoi(optarg);
+                }
+                else if (strcmp(long_options[option_index].name, "t_step") == 0)
+                {
+                    cv.t_step   = atoi(optarg);
+                    dpv.t_step  = atoi(optarg);
+                    ramp.t_step = atoi(optarg);
+                }
+                else
+                {
+                    print_usage();
+                    return -1;
                 }
                 break;
 

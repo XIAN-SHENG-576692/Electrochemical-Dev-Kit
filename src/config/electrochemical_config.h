@@ -13,8 +13,9 @@ extern "C"
 
 #define ELECTROCHEMICAL_ERROR_TABLE                                            \
     X(OK, 0b00, No error)                                                      \
-    X(PARAMS, 0b01, Invalid parameters)                                        \
-    X(OTHER, 0b10, Other error)
+    X(PARAM, 0b01, Invalid parameter)                                          \
+    X(DIV_0, 0b10, Division by zero)                                           \
+    X(UNKNOWN, 0b11, Unknown error)
 
     /** @{ */
     typedef enum
@@ -24,12 +25,6 @@ extern "C"
 #undef X
     } ELECTROCHEMICAL_ERROR_ENUM;
     /** @} */
-
-    static const char *const ELECTROCHEMICAL_ERROR_DESCRIPTIONS[] = {
-#define X(name, val, desc) #desc,
-        ELECTROCHEMICAL_ERROR_TABLE
-#undef X
-    };
 
 #ifdef __cplusplus
 }

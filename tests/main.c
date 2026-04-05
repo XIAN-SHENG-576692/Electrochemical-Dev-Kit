@@ -95,6 +95,20 @@ int main(int argc, char *argv[])
         TIME_TYPE t_time = cv_get_time_by_index(&cv, 5);
         if (t_time != 25)
             return -1;
+        {
+            cv_params cv_copy = cv;
+            cv_set_n_step_by_e_vertex(&cv_copy, 400);
+            ENERGY_TYPE e_vertex_copy = cv_get_e_vertex(&cv_copy);
+            if (e_vertex_copy != 400)
+                return -1;
+        }
+        {
+            cv_params cv_copy = cv;
+            cv_set_t_step_by_scan_rate(&cv_copy, 1.0);
+            RATE_TYPE scan_rate_copy = cv_get_scan_rate(&cv_copy);
+            if (scan_rate_copy != 1)
+                return -1;
+        }
         return 0;
     }
     else if (strcmp(argv[1], "dpv") == 0)
@@ -158,6 +172,20 @@ int main(int argc, char *argv[])
         );
         if (t_time_step_pulse != 28)
             return -1;
+        {
+            dpv_params dpv_copy = dpv;
+            dpv_set_n_step_by_e_end(&dpv_copy, 400);
+            ENERGY_TYPE e_end_copy = dpv_get_e_end(&dpv_copy);
+            if (e_end_copy != 400)
+                return -1;
+        }
+        {
+            dpv_params dpv_copy = dpv;
+            dpv_set_t_step_by_scan_rate(&dpv_copy, 1.0);
+            RATE_TYPE scan_rate_copy = dpv_get_scan_rate(&dpv_copy);
+            if (scan_rate_copy != 1)
+                return -1;
+        }
         return 0;
     }
     else if (strcmp(argv[1], "ramp") == 0)
@@ -183,6 +211,20 @@ int main(int argc, char *argv[])
         TIME_TYPE t_time = ramp_get_time_by_index(&ramp, 5);
         if (t_time != 25)
             return -1;
+        {
+            ramp_params ramp_copy = ramp;
+            ramp_set_n_step_by_e_end(&ramp_copy, 400);
+            ENERGY_TYPE e_end_copy = ramp_get_e_end(&ramp_copy);
+            if (e_end_copy != 400)
+                return -1;
+        }
+        {
+            ramp_params ramp_copy = ramp;
+            ramp_set_t_step_by_scan_rate(&ramp_copy, 1.0);
+            RATE_TYPE scan_rate_copy = ramp_get_scan_rate(&ramp_copy);
+            if (scan_rate_copy != 1)
+                return -1;
+        }
         return 0;
     }
 
