@@ -16,7 +16,12 @@ This kit provides the core logic and utilities needed to streamline your electro
 
 ### Integration
 
-To use this toolkit in your own project, simply include the files located in the `src` directory.
+To use this toolkit in your own project, simply include the files located in the `src/` directory.
+
+The source files are available for download in the latest release:
+
+[![Download Src](https://img.shields.io/github/v/release/XIAN-SHENG-576692/Electrochemical-Dev-Kit?label=download%20src&style=for-the-badge)](
+https://github.com/XIAN-SHENG-576692/Electrochemical-Dev-Kit/releases/download/latest/src.zip)
 
 ### Trying the Demo
 
