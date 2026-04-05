@@ -10,7 +10,7 @@
 #define RATE_TYPE   float
 #define TIME_TYPE   uint16_t
 
-DECLARE_ELECTROCHEMICAL_CV(
+DECLARE_ELECTROCHEMICAL_CV_H(
     cv,
     ENERGY_TYPE,
     INDEX_TYPE,
@@ -18,7 +18,15 @@ DECLARE_ELECTROCHEMICAL_CV(
     RATE_TYPE,
     TIME_TYPE
 )
-DECLARE_ELECTROCHEMICAL_DPV(
+DECLARE_ELECTROCHEMICAL_CV_C(
+    cv,
+    ENERGY_TYPE,
+    INDEX_TYPE,
+    NUM_TYPE,
+    RATE_TYPE,
+    TIME_TYPE
+)
+DECLARE_ELECTROCHEMICAL_DPV_H(
     dpv,
     ENERGY_TYPE,
     INDEX_TYPE,
@@ -26,7 +34,23 @@ DECLARE_ELECTROCHEMICAL_DPV(
     RATE_TYPE,
     TIME_TYPE
 )
-DECLARE_ELECTROCHEMICAL_RAMP(
+DECLARE_ELECTROCHEMICAL_DPV_C(
+    dpv,
+    ENERGY_TYPE,
+    INDEX_TYPE,
+    NUM_TYPE,
+    RATE_TYPE,
+    TIME_TYPE
+)
+DECLARE_ELECTROCHEMICAL_RAMP_H(
+    ramp,
+    ENERGY_TYPE,
+    INDEX_TYPE,
+    NUM_TYPE,
+    RATE_TYPE,
+    TIME_TYPE
+)
+DECLARE_ELECTROCHEMICAL_RAMP_C(
     ramp,
     ENERGY_TYPE,
     INDEX_TYPE,
@@ -86,13 +110,6 @@ int main(int argc, char *argv[])
         ENERGY_TYPE e_end = dpv_get_e_end(&dpv);
         if (e_end != 400)
             return -1;
-        ENERGY_TYPE e_energy_step = dpv_get_energy_by_index(
-            &dpv,
-            5,
-            ELECTROCHEMICAL_DPV_SELECTION_STEP
-        );
-        if (e_energy_step != 450)
-            return -1;
         ENERGY_TYPE e_energy_pulse = dpv_get_energy_by_index(
             &dpv,
             5,
@@ -100,9 +117,19 @@ int main(int argc, char *argv[])
         );
         if (e_energy_pulse != 500)
             return -1;
-        ENERGY_TYPE e_energy_all =
-            dpv_get_energy_by_index(&dpv, 5, ELECTROCHEMICAL_DPV_SELECTION_ALL);
-        if (e_energy_all != 530)
+        ENERGY_TYPE e_energy_step = dpv_get_energy_by_index(
+            &dpv,
+            5,
+            ELECTROCHEMICAL_DPV_SELECTION_STEP
+        );
+        if (e_energy_step != 450)
+            return -1;
+        ENERGY_TYPE e_energy_step_pulse = dpv_get_energy_by_index(
+            &dpv,
+            5,
+            ELECTROCHEMICAL_DPV_SELECTION_STEP_PULSE
+        );
+        if (e_energy_step_pulse != 530)
             return -1;
         NUM_TYPE n_step_total = dpv_get_n_step_total(&dpv);
         if (n_step_total != 20)
@@ -116,17 +143,20 @@ int main(int argc, char *argv[])
         TIME_TYPE t_total = dpv_get_t_total(&dpv);
         if (t_total != 100)
             return -1;
-        TIME_TYPE t_time_step =
-            dpv_get_time_by_index(&dpv, 5, ELECTROCHEMICAL_DPV_SELECTION_STEP);
-        if (t_time_step != 50)
-            return -1;
         TIME_TYPE t_time_pulse =
             dpv_get_time_by_index(&dpv, 5, ELECTROCHEMICAL_DPV_SELECTION_PULSE);
         if (t_time_pulse != 58)
             return -1;
-        TIME_TYPE t_time_all =
-            dpv_get_time_by_index(&dpv, 5, ELECTROCHEMICAL_DPV_SELECTION_ALL);
-        if (t_time_all != 28)
+        TIME_TYPE t_time_step =
+            dpv_get_time_by_index(&dpv, 5, ELECTROCHEMICAL_DPV_SELECTION_STEP);
+        if (t_time_step != 50)
+            return -1;
+        TIME_TYPE t_time_step_pulse = dpv_get_time_by_index(
+            &dpv,
+            5,
+            ELECTROCHEMICAL_DPV_SELECTION_STEP_PULSE
+        );
+        if (t_time_step_pulse != 28)
             return -1;
         return 0;
     }

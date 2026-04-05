@@ -20,7 +20,7 @@ static const char *program_invocation_name;
 #define RATE_TYPE   float
 #define TIME_TYPE   uint16_t
 
-DECLARE_ELECTROCHEMICAL_CV(
+DECLARE_ELECTROCHEMICAL_CV_H(
     cv,
     ENERGY_TYPE,
     INDEX_TYPE,
@@ -28,7 +28,15 @@ DECLARE_ELECTROCHEMICAL_CV(
     RATE_TYPE,
     TIME_TYPE
 )
-DECLARE_ELECTROCHEMICAL_DPV(
+DECLARE_ELECTROCHEMICAL_CV_C(
+    cv,
+    ENERGY_TYPE,
+    INDEX_TYPE,
+    NUM_TYPE,
+    RATE_TYPE,
+    TIME_TYPE
+)
+DECLARE_ELECTROCHEMICAL_DPV_H(
     dpv,
     ENERGY_TYPE,
     INDEX_TYPE,
@@ -36,7 +44,23 @@ DECLARE_ELECTROCHEMICAL_DPV(
     RATE_TYPE,
     TIME_TYPE
 )
-DECLARE_ELECTROCHEMICAL_RAMP(
+DECLARE_ELECTROCHEMICAL_DPV_C(
+    dpv,
+    ENERGY_TYPE,
+    INDEX_TYPE,
+    NUM_TYPE,
+    RATE_TYPE,
+    TIME_TYPE
+)
+DECLARE_ELECTROCHEMICAL_RAMP_H(
+    ramp,
+    ENERGY_TYPE,
+    INDEX_TYPE,
+    NUM_TYPE,
+    RATE_TYPE,
+    TIME_TYPE
+)
+DECLARE_ELECTROCHEMICAL_RAMP_C(
     ramp,
     ENERGY_TYPE,
     INDEX_TYPE,
@@ -273,15 +297,6 @@ static void print_dpv()
         printf("========== Results ==========\n");
         NUM_TYPE n_step_total = dpv_get_n_step_total(&dpv);
 
-        for (size_t i = 0; i < n_step_total; i++)
-        {
-            ENERGY_TYPE e_energy_all = dpv_get_energy_by_index(
-                &dpv,
-                i,
-                ELECTROCHEMICAL_DPV_SELECTION_ALL
-            );
-            printf("e_energy_all[%ld]: %d\n", i, e_energy_all);
-        }
         for (size_t i = 0; i < dpv.n_step; i++)
         {
             ENERGY_TYPE e_energy_pulse = dpv_get_energy_by_index(
@@ -300,16 +315,16 @@ static void print_dpv()
             );
             printf("e_energy_step[%ld]: %d\n", i, e_energy_step);
         }
-
         for (size_t i = 0; i < n_step_total; i++)
         {
-            TIME_TYPE t_time_all = dpv_get_time_by_index(
+            ENERGY_TYPE e_energy_step_pulse = dpv_get_energy_by_index(
                 &dpv,
                 i,
-                ELECTROCHEMICAL_DPV_SELECTION_ALL
+                ELECTROCHEMICAL_DPV_SELECTION_STEP_PULSE
             );
-            printf("t_time_all[%ld]: %d\n", i, t_time_all);
+            printf("e_energy_step_pulse[%ld]: %d\n", i, e_energy_step_pulse);
         }
+
         for (size_t i = 0; i < dpv.n_step; i++)
         {
             TIME_TYPE t_time_pulse = dpv_get_time_by_index(
@@ -327,6 +342,15 @@ static void print_dpv()
                 ELECTROCHEMICAL_DPV_SELECTION_STEP
             );
             printf("t_time_step[%ld]: %d\n", i, t_time_step);
+        }
+        for (size_t i = 0; i < n_step_total; i++)
+        {
+            TIME_TYPE t_time_step_pulse = dpv_get_time_by_index(
+                &dpv,
+                i,
+                ELECTROCHEMICAL_DPV_SELECTION_STEP_PULSE
+            );
+            printf("t_time_step_pulse[%ld]: %d\n", i, t_time_step_pulse);
         }
     }
 }

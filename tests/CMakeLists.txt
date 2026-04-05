@@ -20,12 +20,12 @@ target_link_libraries(Tests
 )
 
 function(AddTest op)
-  add_test(
-    NAME ${op}
-    COMMAND Tests ${op}
-  )
+    add_test(
+        NAME ${op}
+        COMMAND Tests ${op}
+    )
 endfunction()
 
 AddTest(cv)
-AddTest(ramp)
 AddTest(dpv)
+AddTest(ramp)
