@@ -1,6 +1,6 @@
-add_executable(Tests)
+add_executable(tests)
 
-target_compile_options(Tests
+target_compile_options(tests
     PRIVATE
         -Wall
         -Werror
@@ -8,13 +8,13 @@ target_compile_options(Tests
 )
 
 # Sources
-target_sources(Tests
+target_sources(tests
     PRIVATE
         main.c
 )
 
 # Libraries
-target_link_libraries(Tests
+target_link_libraries(tests
     PRIVATE
         Electrochemical
 )
@@ -22,7 +22,7 @@ target_link_libraries(Tests
 function(AddTest op)
     add_test(
         NAME ${op}
-        COMMAND Tests ${op}
+        COMMAND tests ${op}
     )
 endfunction()
 
