@@ -18,16 +18,16 @@ This kit provides the core logic and utilities needed to streamline your electro
 
 To use this toolkit in your own project, simply include the files located in the `src/` directory.
 
-The source files are available for download in the latest release:
+The `src.zip` are available for download in the latest release:
 
-[![Download src](https://img.shields.io/github/v/release/XIAN-SHENG-576692/Electrochemical-Dev-Kit?label=Download%20src&style=flat)](
+[![Download src.zip](https://img.shields.io/github/v/release/XIAN-SHENG-576692/Electrochemical-Dev-Kit?label=Download%20src.zip&style=flat)](
 https://github.com/XIAN-SHENG-576692/Electrochemical-Dev-Kit/releases/download/latest/src.zip)
 
 ### Trying the Demo
 
 You don't need to build everything from scratch to see it in action. Our **CI/CD pipeline** automatically builds a functional demo for every release:
 1. Navigate to the **Releases** section of this repository.
-2. Download the latest demo artifact.
+2. Download the latest `demo` artifact.
 3. Run the executable to explore the toolkit's capabilities.
 
 [![Download demo](https://img.shields.io/github/v/release/XIAN-SHENG-576692/Electrochemical-Dev-Kit?label=Download%20demo&style=flat)](
