@@ -21,8 +21,10 @@ To use this toolkit in your own project, simply include the files located in the
 The `src.zip` are available for download in the latest release:
 
 - 
+    **Manually download**:  
     [![Download src.zip](https://img.shields.io/github/v/release/XIAN-SHENG-576692/Electrochemical-Dev-Kit?label=Download%20src.zip&style=flat)](https://github.com/XIAN-SHENG-576692/Electrochemical-Dev-Kit/releases/download/latest/src.zip)
 - 
+    **Wget**:  
     ```bash
     curl -s https://api.github.com/repos/XIAN-SHENG-576692/Electrochemical-Dev-Kit/releases/latest \
     | grep "browser_download_url" \
@@ -30,9 +32,17 @@ The `src.zip` are available for download in the latest release:
     | tr -d \" \
     | grep "src.zip" \
     | wget -qi -
+    ```
+- 
+    **CMake**:  
+    ```cmake
+    include(FetchContent)
 
-    unzip src.zip -d <UTILS_DIR>
-    rm src.zip
+    FetchContent_Declare(
+        electrochemical
+        URL https://github.com/XIAN-SHENG-576692/Electrochemical-Dev-Kit/releases/download/latest/src.zip
+    )
+    FetchContent_MakeAvailable(electrochemical)
     ```
 
 ### Trying the Demo
