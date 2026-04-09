@@ -14,54 +14,34 @@ static const char *program_invocation_name;
 #define STRINGIZE_THIS(var)            #var
 #define STRINGIZE_THIS_DEFINITION(var) STRINGIZE_THIS(var)
 
-#define ENERGY_TYPE int16_t
-#define INDEX_TYPE  uint8_t
-#define NUM_TYPE    uint8_t
-#define RATE_TYPE   float
-#define TIME_TYPE   uint16_t
+#define BOOLEAN_TYPE bool
+#define ENERGY_TYPE  int16_t
+#define INDEX_TYPE   uint8_t
+#define NUM_TYPE     uint8_t
+#define RATE_TYPE    float
+#define TIME_TYPE    uint16_t
 
-DECLARE_ELECTROCHEMICAL_CV_H(
+DEFINE_ELECTROCHEMICAL_CV(
     cv,
+    BOOLEAN_TYPE,
     ENERGY_TYPE,
     INDEX_TYPE,
     NUM_TYPE,
     RATE_TYPE,
     TIME_TYPE
 )
-DECLARE_ELECTROCHEMICAL_CV_C(
-    cv,
-    ENERGY_TYPE,
-    INDEX_TYPE,
-    NUM_TYPE,
-    RATE_TYPE,
-    TIME_TYPE
-)
-DECLARE_ELECTROCHEMICAL_DPV_H(
+DEFINE_ELECTROCHEMICAL_DPV(
     dpv,
+    BOOLEAN_TYPE,
     ENERGY_TYPE,
     INDEX_TYPE,
     NUM_TYPE,
     RATE_TYPE,
     TIME_TYPE
 )
-DECLARE_ELECTROCHEMICAL_DPV_C(
-    dpv,
-    ENERGY_TYPE,
-    INDEX_TYPE,
-    NUM_TYPE,
-    RATE_TYPE,
-    TIME_TYPE
-)
-DECLARE_ELECTROCHEMICAL_RAMP_H(
+DEFINE_ELECTROCHEMICAL_RAMP(
     ramp,
-    ENERGY_TYPE,
-    INDEX_TYPE,
-    NUM_TYPE,
-    RATE_TYPE,
-    TIME_TYPE
-)
-DECLARE_ELECTROCHEMICAL_RAMP_C(
-    ramp,
+    BOOLEAN_TYPE,
     ENERGY_TYPE,
     INDEX_TYPE,
     NUM_TYPE,
@@ -206,6 +186,12 @@ static void print_structs(
 static void print_cv()
 {
     printf("========== CV ==========\n");
+    if (cv_is_vaild(&cv) == false)
+    {
+        printf("CV is invalid.\n");
+        return;
+    }
+
     if (shows.flags & SHOW_MASK_structs)
     {
         print_structs(
@@ -260,6 +246,12 @@ static void print_cv()
 static void print_dpv()
 {
     printf("========== DPV ==========\n");
+    if (dpv_is_vaild(&dpv) == false)
+    {
+        printf("DPV is invalid.\n");
+        return;
+    }
+
     if (shows.flags & SHOW_MASK_structs)
     {
         print_structs(
@@ -361,6 +353,12 @@ static void print_dpv()
 static void print_ramp()
 {
     printf("========== Ramp ==========\n");
+    if (ramp_is_vaild(&ramp) == false)
+    {
+        printf("Ramp is invalid.\n");
+        return;
+    }
+
     if (shows.flags & SHOW_MASK_structs)
     {
         print_structs(

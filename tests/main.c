@@ -1,57 +1,38 @@
 #include "electrochemical.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#define ENERGY_TYPE int16_t
-#define INDEX_TYPE  uint8_t
-#define NUM_TYPE    uint8_t
-#define RATE_TYPE   float
-#define TIME_TYPE   uint16_t
+#define BOOLEAN_TYPE bool
+#define ENERGY_TYPE  int16_t
+#define INDEX_TYPE   uint8_t
+#define NUM_TYPE     uint8_t
+#define RATE_TYPE    float
+#define TIME_TYPE    uint16_t
 
-DECLARE_ELECTROCHEMICAL_CV_H(
+DEFINE_ELECTROCHEMICAL_CV(
     cv,
+    BOOLEAN_TYPE,
     ENERGY_TYPE,
     INDEX_TYPE,
     NUM_TYPE,
     RATE_TYPE,
     TIME_TYPE
 )
-DECLARE_ELECTROCHEMICAL_CV_C(
-    cv,
-    ENERGY_TYPE,
-    INDEX_TYPE,
-    NUM_TYPE,
-    RATE_TYPE,
-    TIME_TYPE
-)
-DECLARE_ELECTROCHEMICAL_DPV_H(
+DEFINE_ELECTROCHEMICAL_DPV(
     dpv,
+    BOOLEAN_TYPE,
     ENERGY_TYPE,
     INDEX_TYPE,
     NUM_TYPE,
     RATE_TYPE,
     TIME_TYPE
 )
-DECLARE_ELECTROCHEMICAL_DPV_C(
-    dpv,
-    ENERGY_TYPE,
-    INDEX_TYPE,
-    NUM_TYPE,
-    RATE_TYPE,
-    TIME_TYPE
-)
-DECLARE_ELECTROCHEMICAL_RAMP_H(
+DEFINE_ELECTROCHEMICAL_RAMP(
     ramp,
-    ENERGY_TYPE,
-    INDEX_TYPE,
-    NUM_TYPE,
-    RATE_TYPE,
-    TIME_TYPE
-)
-DECLARE_ELECTROCHEMICAL_RAMP_C(
-    ramp,
+    BOOLEAN_TYPE,
     ENERGY_TYPE,
     INDEX_TYPE,
     NUM_TYPE,
@@ -95,6 +76,16 @@ int main(int argc, char *argv[])
         TIME_TYPE t_time = cv_get_time_by_index(&cv, 5);
         if (t_time != 25)
             return -1;
+        BOOLEAN_TYPE is_invaild = !cv_is_vaild(&cv);
+        if (is_invaild)
+            return -1;
+        {
+            cv_params cv_copy     = cv;
+            cv_copy.e_step        = 0;
+            BOOLEAN_TYPE is_vaild = cv_is_vaild(&cv_copy);
+            if (is_vaild)
+                return -1;
+        }
         {
             cv_params cv_copy = cv;
             cv_set_n_step_by_e_vertex(&cv_copy, 400);
@@ -172,6 +163,16 @@ int main(int argc, char *argv[])
         );
         if (t_time_step_pulse != 28)
             return -1;
+        BOOLEAN_TYPE is_invaild = !dpv_is_vaild(&dpv);
+        if (is_invaild)
+            return -1;
+        {
+            dpv_params dpv_copy   = dpv;
+            dpv_copy.e_step       = 0;
+            BOOLEAN_TYPE is_vaild = dpv_is_vaild(&dpv_copy);
+            if (is_vaild)
+                return -1;
+        }
         {
             dpv_params dpv_copy = dpv;
             dpv_set_n_step_by_e_end(&dpv_copy, 400);
@@ -211,6 +212,16 @@ int main(int argc, char *argv[])
         TIME_TYPE t_time = ramp_get_time_by_index(&ramp, 5);
         if (t_time != 25)
             return -1;
+        BOOLEAN_TYPE is_invaild = !ramp_is_vaild(&ramp);
+        if (is_invaild)
+            return -1;
+        {
+            ramp_params ramp_copy = ramp;
+            ramp_copy.e_step      = 0;
+            BOOLEAN_TYPE is_vaild = ramp_is_vaild(&ramp_copy);
+            if (is_vaild)
+                return -1;
+        }
         {
             ramp_params ramp_copy = ramp;
             ramp_set_n_step_by_e_end(&ramp_copy, 400);

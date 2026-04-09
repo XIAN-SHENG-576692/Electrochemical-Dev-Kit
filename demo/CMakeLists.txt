@@ -1,6 +1,7 @@
 add_executable(demo)
 
-target_compile_options(demo
+target_compile_options(
+    demo
     PRIVATE
         -Wall
         -Werror
@@ -8,13 +9,15 @@ target_compile_options(demo
 )
 
 # Sources
-target_sources(demo
+target_sources(
+    demo
     PRIVATE
         main.c
 )
 
 # Libraries
-target_link_libraries(demo
+target_link_libraries(
+    demo
     PRIVATE
         electrochemical
 )

@@ -1,6 +1,7 @@
 add_executable(tests)
 
-target_compile_options(tests
+target_compile_options(
+    tests
     PRIVATE
         -Wall
         -Werror
@@ -8,13 +9,15 @@ target_compile_options(tests
 )
 
 # Sources
-target_sources(tests
+target_sources(
+    tests
     PRIVATE
         main.c
 )
 
 # Libraries
-target_link_libraries(tests
+target_link_libraries(
+    tests
     PRIVATE
         electrochemical
 )
