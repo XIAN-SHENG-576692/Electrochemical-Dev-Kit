@@ -1,44 +1,19 @@
-#include "electrochemical.h"
+/**
+ * @author    XIAN-SHENG CHEN
+ * @date      April 2026
+ *
+ * Copyright (c) 2026 XIAN-SHENG CHEN. All Rights Reserved.
+ **/
+#include "electrochemical_dev_kit.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#define BOOLEAN_TYPE bool
-#define ENERGY_TYPE  int16_t
-#define INDEX_TYPE   uint8_t
-#define NUM_TYPE     uint8_t
-#define RATE_TYPE    float
-#define TIME_TYPE    uint16_t
-
-DEFINE_ELECTROCHEMICAL_CV(
-    cv,
-    BOOLEAN_TYPE,
-    ENERGY_TYPE,
-    INDEX_TYPE,
-    NUM_TYPE,
-    RATE_TYPE,
-    TIME_TYPE
-)
-DEFINE_ELECTROCHEMICAL_DPV(
-    dpv,
-    BOOLEAN_TYPE,
-    ENERGY_TYPE,
-    INDEX_TYPE,
-    NUM_TYPE,
-    RATE_TYPE,
-    TIME_TYPE
-)
-DEFINE_ELECTROCHEMICAL_RAMP(
-    ramp,
-    BOOLEAN_TYPE,
-    ENERGY_TYPE,
-    INDEX_TYPE,
-    NUM_TYPE,
-    RATE_TYPE,
-    TIME_TYPE
-)
+ELECTROCHEMICAL_DEV_KIT_DEFINE_CV(__cv, float, uint8_t, float)
+ELECTROCHEMICAL_DEV_KIT_DEFINE_DPV(__dpv, float, uint8_t, float)
+ELECTROCHEMICAL_DEV_KIT_DEFINE_RAMP(__ramp, float, uint8_t, float)
 
 int main(int argc, char *argv[])
 {
@@ -49,54 +24,65 @@ int main(int argc, char *argv[])
 
     if (strcmp(argv[1], "cv") == 0)
     {
-        cv_params cv = {
+        ELECTROCHEMICAL_DEV_KIT_cv_params cv = {
             .e_begin = 500,
             .e_step  = -10,
             .n_step  = 10,
             .t_step  = 5,
         };
-        ENERGY_TYPE e_vertex = cv_get_e_vertex(&cv);
+        ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_at =
+            ELECTROCHEMICAL_DEV_KIT_cv_get_e_at_index(&cv, 5);
+        if (e_at != 450)
+            return -1;
+        ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_vertex =
+            ELECTROCHEMICAL_DEV_KIT_cv_get_e_vertex(&cv);
         if (e_vertex != 400)
             return -1;
-        ENERGY_TYPE e_energy = cv_get_energy_by_index(&cv, 5);
-        if (e_energy != 450)
-            return -1;
-        NUM_TYPE n_step_total = cv_get_n_step_total(&cv);
+        ELECTROCHEMICAL_DEV_KIT_NUMBER_TYPE n_step_total =
+            ELECTROCHEMICAL_DEV_KIT_cv_get_n_step_total(&cv);
         if (n_step_total != 20)
             return -1;
-        RATE_TYPE scan_rate = cv_get_scan_rate(&cv);
+        ELECTROCHEMICAL_DEV_KIT_RATE_TYPE scan_rate =
+            ELECTROCHEMICAL_DEV_KIT_cv_get_scan_rate(&cv);
         if (scan_rate != 2)
             return -1;
-        TIME_TYPE t_ramp = cv_get_t_ramp(&cv);
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_at =
+            ELECTROCHEMICAL_DEV_KIT_cv_get_t_at_index(&cv, 5);
+        if (t_at != 25)
+            return -1;
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_ramp =
+            ELECTROCHEMICAL_DEV_KIT_cv_get_t_ramp(&cv);
         if (t_ramp != 50)
             return -1;
-        TIME_TYPE t_total = cv_get_t_total(&cv);
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_total =
+            ELECTROCHEMICAL_DEV_KIT_cv_get_t_total(&cv);
         if (t_total != 100)
             return -1;
-        TIME_TYPE t_time = cv_get_time_by_index(&cv, 5);
-        if (t_time != 25)
-            return -1;
-        BOOLEAN_TYPE is_invaild = !cv_is_vaild(&cv);
+        ELECTROCHEMICAL_DEV_KIT_BOOLEAN_TYPE is_invaild =
+            !ELECTROCHEMICAL_DEV_KIT_cv_is_vaild(&cv);
         if (is_invaild)
             return -1;
         {
-            cv_params cv_copy     = cv;
-            cv_copy.e_step        = 0;
-            BOOLEAN_TYPE is_vaild = cv_is_vaild(&cv_copy);
+            ELECTROCHEMICAL_DEV_KIT_cv_params cv_copy = cv;
+            cv_copy.e_step                            = 0;
+            ELECTROCHEMICAL_DEV_KIT_BOOLEAN_TYPE is_vaild =
+                ELECTROCHEMICAL_DEV_KIT_cv_is_vaild(&cv_copy);
             if (is_vaild)
                 return -1;
         }
         {
-            cv_params cv_copy = cv;
-            cv_set_n_step_by_e_vertex(&cv_copy, 400);
-            ENERGY_TYPE e_vertex_copy = cv_get_e_vertex(&cv_copy);
+            ELECTROCHEMICAL_DEV_KIT_cv_params cv_copy = cv;
+            ELECTROCHEMICAL_DEV_KIT_cv_set_n_step_by_e_vertex(&cv_copy, 400);
+            ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_vertex_copy =
+                ELECTROCHEMICAL_DEV_KIT_cv_get_e_vertex(&cv_copy);
             if (e_vertex_copy != 400)
                 return -1;
         }
         {
-            cv_params cv_copy = cv;
-            cv_set_t_step_by_scan_rate(&cv_copy, 1.0);
-            RATE_TYPE scan_rate_copy = cv_get_scan_rate(&cv_copy);
+            ELECTROCHEMICAL_DEV_KIT_cv_params cv_copy = cv;
+            ELECTROCHEMICAL_DEV_KIT_cv_set_t_step_by_scan_rate(&cv_copy, 1.0);
+            ELECTROCHEMICAL_DEV_KIT_RATE_TYPE scan_rate_copy =
+                ELECTROCHEMICAL_DEV_KIT_cv_get_scan_rate(&cv_copy);
             if (scan_rate_copy != 1)
                 return -1;
         }
@@ -104,7 +90,7 @@ int main(int argc, char *argv[])
     }
     else if (strcmp(argv[1], "dpv") == 0)
     {
-        dpv_params dpv = {
+        ELECTROCHEMICAL_DEV_KIT_dpv_params dpv = {
             .e_begin = 500,
             .e_pulse = 50,
             .e_step  = -10,
@@ -112,78 +98,99 @@ int main(int argc, char *argv[])
             .t_pulse = 2,
             .t_step  = 8,
         };
-        ENERGY_TYPE e_end = dpv_get_e_end(&dpv);
+        ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_at_pulse =
+            ELECTROCHEMICAL_DEV_KIT_dpv_get_e_at_index(
+                &dpv,
+                5,
+                ELECTROCHEMICAL_DEV_KIT_dpv_selection_pulse
+            );
+        if (e_at_pulse != 500)
+            return -1;
+        ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_at_step =
+            ELECTROCHEMICAL_DEV_KIT_dpv_get_e_at_index(
+                &dpv,
+                5,
+                ELECTROCHEMICAL_DEV_KIT_dpv_selection_step
+            );
+        if (e_at_step != 450)
+            return -1;
+        ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_at_step_pulse =
+            ELECTROCHEMICAL_DEV_KIT_dpv_get_e_at_index(
+                &dpv,
+                5,
+                ELECTROCHEMICAL_DEV_KIT_dpv_selection_step_pulse
+            );
+        if (e_at_step_pulse != 530)
+            return -1;
+        ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_end =
+            ELECTROCHEMICAL_DEV_KIT_dpv_get_e_end(&dpv);
         if (e_end != 400)
             return -1;
-        ENERGY_TYPE e_energy_pulse = dpv_get_energy_by_index(
-            &dpv,
-            5,
-            ELECTROCHEMICAL_DPV_SELECTION_PULSE
-        );
-        if (e_energy_pulse != 500)
-            return -1;
-        ENERGY_TYPE e_energy_step = dpv_get_energy_by_index(
-            &dpv,
-            5,
-            ELECTROCHEMICAL_DPV_SELECTION_STEP
-        );
-        if (e_energy_step != 450)
-            return -1;
-        ENERGY_TYPE e_energy_step_pulse = dpv_get_energy_by_index(
-            &dpv,
-            5,
-            ELECTROCHEMICAL_DPV_SELECTION_STEP_PULSE
-        );
-        if (e_energy_step_pulse != 530)
-            return -1;
-        NUM_TYPE n_step_total = dpv_get_n_step_total(&dpv);
+        ELECTROCHEMICAL_DEV_KIT_NUMBER_TYPE n_step_total =
+            ELECTROCHEMICAL_DEV_KIT_dpv_get_n_step_total(&dpv);
         if (n_step_total != 20)
             return -1;
-        RATE_TYPE scan_rate = dpv_get_scan_rate(&dpv);
+        ELECTROCHEMICAL_DEV_KIT_RATE_TYPE scan_rate =
+            ELECTROCHEMICAL_DEV_KIT_dpv_get_scan_rate(&dpv);
         if (scan_rate != 1)
             return -1;
-        TIME_TYPE t_interval = dpv_get_t_interval(&dpv);
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_at_pulse =
+            ELECTROCHEMICAL_DEV_KIT_dpv_get_t_at_index(
+                &dpv,
+                5,
+                ELECTROCHEMICAL_DEV_KIT_dpv_selection_pulse
+            );
+        if (t_at_pulse != 58)
+            return -1;
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_at_step =
+            ELECTROCHEMICAL_DEV_KIT_dpv_get_t_at_index(
+                &dpv,
+                5,
+                ELECTROCHEMICAL_DEV_KIT_dpv_selection_step
+            );
+        if (t_at_step != 50)
+            return -1;
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_at_step_pulse =
+            ELECTROCHEMICAL_DEV_KIT_dpv_get_t_at_index(
+                &dpv,
+                5,
+                ELECTROCHEMICAL_DEV_KIT_dpv_selection_step_pulse
+            );
+        if (t_at_step_pulse != 28)
+            return -1;
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_interval =
+            ELECTROCHEMICAL_DEV_KIT_dpv_get_t_interval(&dpv);
         if (t_interval != 10)
             return -1;
-        TIME_TYPE t_total = dpv_get_t_total(&dpv);
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_total =
+            ELECTROCHEMICAL_DEV_KIT_dpv_get_t_total(&dpv);
         if (t_total != 100)
             return -1;
-        TIME_TYPE t_time_pulse =
-            dpv_get_time_by_index(&dpv, 5, ELECTROCHEMICAL_DPV_SELECTION_PULSE);
-        if (t_time_pulse != 58)
-            return -1;
-        TIME_TYPE t_time_step =
-            dpv_get_time_by_index(&dpv, 5, ELECTROCHEMICAL_DPV_SELECTION_STEP);
-        if (t_time_step != 50)
-            return -1;
-        TIME_TYPE t_time_step_pulse = dpv_get_time_by_index(
-            &dpv,
-            5,
-            ELECTROCHEMICAL_DPV_SELECTION_STEP_PULSE
-        );
-        if (t_time_step_pulse != 28)
-            return -1;
-        BOOLEAN_TYPE is_invaild = !dpv_is_vaild(&dpv);
+        ELECTROCHEMICAL_DEV_KIT_BOOLEAN_TYPE is_invaild =
+            !ELECTROCHEMICAL_DEV_KIT_dpv_is_vaild(&dpv);
         if (is_invaild)
             return -1;
         {
-            dpv_params dpv_copy   = dpv;
-            dpv_copy.e_step       = 0;
-            BOOLEAN_TYPE is_vaild = dpv_is_vaild(&dpv_copy);
+            ELECTROCHEMICAL_DEV_KIT_dpv_params dpv_copy = dpv;
+            dpv_copy.e_step                             = 0;
+            ELECTROCHEMICAL_DEV_KIT_BOOLEAN_TYPE is_vaild =
+                ELECTROCHEMICAL_DEV_KIT_dpv_is_vaild(&dpv_copy);
             if (is_vaild)
                 return -1;
         }
         {
-            dpv_params dpv_copy = dpv;
-            dpv_set_n_step_by_e_end(&dpv_copy, 400);
-            ENERGY_TYPE e_end_copy = dpv_get_e_end(&dpv_copy);
+            ELECTROCHEMICAL_DEV_KIT_dpv_params dpv_copy = dpv;
+            ELECTROCHEMICAL_DEV_KIT_dpv_set_n_step_by_e_end(&dpv_copy, 400);
+            ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_end_copy =
+                ELECTROCHEMICAL_DEV_KIT_dpv_get_e_end(&dpv_copy);
             if (e_end_copy != 400)
                 return -1;
         }
         {
-            dpv_params dpv_copy = dpv;
-            dpv_set_t_step_by_scan_rate(&dpv_copy, 1.0);
-            RATE_TYPE scan_rate_copy = dpv_get_scan_rate(&dpv_copy);
+            ELECTROCHEMICAL_DEV_KIT_dpv_params dpv_copy = dpv;
+            ELECTROCHEMICAL_DEV_KIT_dpv_set_t_step_by_scan_rate(&dpv_copy, 1.0);
+            ELECTROCHEMICAL_DEV_KIT_RATE_TYPE scan_rate_copy =
+                ELECTROCHEMICAL_DEV_KIT_dpv_get_scan_rate(&dpv_copy);
             if (scan_rate_copy != 1)
                 return -1;
         }
@@ -191,48 +198,60 @@ int main(int argc, char *argv[])
     }
     else if (strcmp(argv[1], "ramp") == 0)
     {
-        ramp_params ramp = {
+        ELECTROCHEMICAL_DEV_KIT_ramp_params ramp = {
             .e_begin = 500,
             .e_step  = -10,
             .n_step  = 10,
             .t_step  = 5,
         };
-        ENERGY_TYPE e_end = ramp_get_e_end(&ramp);
+        ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_at =
+            ELECTROCHEMICAL_DEV_KIT_ramp_get_e_at_index(&ramp, 5);
+        if (e_at != 450)
+            return -1;
+        ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_end =
+            ELECTROCHEMICAL_DEV_KIT_ramp_get_e_end(&ramp);
         if (e_end != 400)
             return -1;
-        ENERGY_TYPE e_energy = ramp_get_energy_by_index(&ramp, 5);
-        if (e_energy != 450)
-            return -1;
-        RATE_TYPE scan_rate = ramp_get_scan_rate(&ramp);
+        ELECTROCHEMICAL_DEV_KIT_RATE_TYPE scan_rate =
+            ELECTROCHEMICAL_DEV_KIT_ramp_get_scan_rate(&ramp);
         if (scan_rate != 2)
             return -1;
-        TIME_TYPE t_total = ramp_get_t_total(&ramp);
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_at =
+            ELECTROCHEMICAL_DEV_KIT_ramp_get_t_at_index(&ramp, 5);
+        if (t_at != 25)
+            return -1;
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_total =
+            ELECTROCHEMICAL_DEV_KIT_ramp_get_t_total(&ramp);
         if (t_total != 50)
             return -1;
-        TIME_TYPE t_time = ramp_get_time_by_index(&ramp, 5);
-        if (t_time != 25)
-            return -1;
-        BOOLEAN_TYPE is_invaild = !ramp_is_vaild(&ramp);
+        ELECTROCHEMICAL_DEV_KIT_BOOLEAN_TYPE is_invaild =
+            !ELECTROCHEMICAL_DEV_KIT_ramp_is_vaild(&ramp);
         if (is_invaild)
             return -1;
         {
-            ramp_params ramp_copy = ramp;
-            ramp_copy.e_step      = 0;
-            BOOLEAN_TYPE is_vaild = ramp_is_vaild(&ramp_copy);
+            ELECTROCHEMICAL_DEV_KIT_ramp_params ramp_copy = ramp;
+            ramp_copy.e_step                              = 0;
+            ELECTROCHEMICAL_DEV_KIT_BOOLEAN_TYPE is_vaild =
+                ELECTROCHEMICAL_DEV_KIT_ramp_is_vaild(&ramp_copy);
             if (is_vaild)
                 return -1;
         }
         {
-            ramp_params ramp_copy = ramp;
-            ramp_set_n_step_by_e_end(&ramp_copy, 400);
-            ENERGY_TYPE e_end_copy = ramp_get_e_end(&ramp_copy);
+            ELECTROCHEMICAL_DEV_KIT_ramp_params ramp_copy = ramp;
+            ELECTROCHEMICAL_DEV_KIT_ramp_set_n_step_by_e_end(&ramp_copy, 400);
+            ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_end_copy =
+                ELECTROCHEMICAL_DEV_KIT_ramp_get_e_end(&ramp_copy);
             if (e_end_copy != 400)
                 return -1;
         }
         {
-            ramp_params ramp_copy = ramp;
-            ramp_set_t_step_by_scan_rate(&ramp_copy, 1.0);
-            RATE_TYPE scan_rate_copy = ramp_get_scan_rate(&ramp_copy);
+            ELECTROCHEMICAL_DEV_KIT_ramp_params ramp_copy = ramp;
+            ELECTROCHEMICAL_DEV_KIT_ramp_set_t_step_by_scan_rate(
+                &ramp_copy,
+                1.0
+            );
+            ELECTROCHEMICAL_DEV_KIT_RATE_TYPE scan_rate_copy =
+                ELECTROCHEMICAL_DEV_KIT_ramp_get_scan_rate(&ramp_copy);
             if (scan_rate_copy != 1)
                 return -1;
         }

@@ -1,4 +1,10 @@
-#include "electrochemical.h"
+/**
+ * @author    XIAN-SHENG CHEN
+ * @date      April 2026
+ *
+ * Copyright (c) 2026 XIAN-SHENG CHEN. All Rights Reserved.
+ **/
+#include "electrochemical_dev_kit.h"
 
 #include <getopt.h>
 #include <stdbool.h>
@@ -14,44 +20,9 @@ static const char *program_invocation_name;
 #define STRINGIZE_THIS(var)            #var
 #define STRINGIZE_THIS_DEFINITION(var) STRINGIZE_THIS(var)
 
-#define BOOLEAN_TYPE bool
-#define ENERGY_TYPE  int16_t
-#define INDEX_TYPE   uint8_t
-#define NUM_TYPE     uint8_t
-#define RATE_TYPE    float
-#define TIME_TYPE    uint16_t
-
-DEFINE_ELECTROCHEMICAL_CV(
-    cv,
-    BOOLEAN_TYPE,
-    ENERGY_TYPE,
-    INDEX_TYPE,
-    NUM_TYPE,
-    RATE_TYPE,
-    TIME_TYPE
-)
-DEFINE_ELECTROCHEMICAL_DPV(
-    dpv,
-    BOOLEAN_TYPE,
-    ENERGY_TYPE,
-    INDEX_TYPE,
-    NUM_TYPE,
-    RATE_TYPE,
-    TIME_TYPE
-)
-DEFINE_ELECTROCHEMICAL_RAMP(
-    ramp,
-    BOOLEAN_TYPE,
-    ENERGY_TYPE,
-    INDEX_TYPE,
-    NUM_TYPE,
-    RATE_TYPE,
-    TIME_TYPE
-)
-
-static cv_params   cv   = {0};
-static dpv_params  dpv  = {0};
-static ramp_params ramp = {0};
+static ELECTROCHEMICAL_DEV_KIT_cv_params   cv   = {0};
+static ELECTROCHEMICAL_DEV_KIT_dpv_params  dpv  = {0};
+static ELECTROCHEMICAL_DEV_KIT_ramp_params ramp = {0};
 
 #define FLAGS_SIZE_TYPE uint16_t
 #define FLAGS_TYPE      uint16_t
@@ -142,11 +113,12 @@ static void print_help()
     printf("NOTE:\n");
     printf("  Use this demo to gain hands-on experience with the dev-kit.\n");
     printf("  Data type definitions in this demo:\n");
-    printf("    ENERGY_TYPE    %8s\n", STRINGIZE_THIS_DEFINITION(ENERGY_TYPE));
-    printf("    INDEX_TYPE     %8s\n", STRINGIZE_THIS_DEFINITION(INDEX_TYPE));
-    printf("    NUM_TYPE       %8s\n", STRINGIZE_THIS_DEFINITION(NUM_TYPE));
-    printf("    RATE_TYPE      %8s\n", STRINGIZE_THIS_DEFINITION(RATE_TYPE));
-    printf("    TIME_TYPE      %8s\n", STRINGIZE_THIS_DEFINITION(TIME_TYPE));
+    printf("    ELECTROCHEMICAL_DEV_KIT_BOOLEAN_TYPE   %8s\n", STRINGIZE_THIS_DEFINITION(ELECTROCHEMICAL_DEV_KIT_BOOLEAN_TYPE));
+    printf("    ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE    %8s\n", STRINGIZE_THIS_DEFINITION(ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE));
+    printf("    ELECTROCHEMICAL_DEV_KIT_INDEX_TYPE     %8s\n", STRINGIZE_THIS_DEFINITION(ELECTROCHEMICAL_DEV_KIT_INDEX_TYPE));
+    printf("    ELECTROCHEMICAL_DEV_KIT_NUMBER_TYPE    %8s\n", STRINGIZE_THIS_DEFINITION(ELECTROCHEMICAL_DEV_KIT_NUMBER_TYPE));
+    printf("    ELECTROCHEMICAL_DEV_KIT_RATE_TYPE      %8s\n", STRINGIZE_THIS_DEFINITION(ELECTROCHEMICAL_DEV_KIT_RATE_TYPE));
+    printf("    ELECTROCHEMICAL_DEV_KIT_TIME_TYPE      %8s\n", STRINGIZE_THIS_DEFINITION(ELECTROCHEMICAL_DEV_KIT_TIME_TYPE));
     printf("\n");
 
     print_usage();
@@ -186,7 +158,7 @@ static void print_structs(
 static void print_cv()
 {
     printf("========== CV ==========\n");
-    if (cv_is_vaild(&cv) == false)
+    if (ELECTROCHEMICAL_DEV_KIT_cv_is_vaild(&cv) == false)
     {
         printf("CV is invalid.\n");
         return;
@@ -195,10 +167,10 @@ static void print_cv()
     if (shows.flags & SHOW_MASK_structs)
     {
         print_structs(
-            STRINGIZE_THIS(cv_params),
+            STRINGIZE_THIS(ELECTROCHEMICAL_DEV_KIT_cv_params),
             STRINGIZE_THIS(cv),
             &cv,
-            sizeof(cv_params)
+            sizeof(ELECTROCHEMICAL_DEV_KIT_cv_params)
         );
     }
 
@@ -212,15 +184,15 @@ static void print_cv()
         printf("t_step: %d\n", cv.t_step);
 
         printf("========== Derived Attributes ==========\n");
-        ENERGY_TYPE e_vertex = cv_get_e_vertex(&cv);
+        ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_vertex = ELECTROCHEMICAL_DEV_KIT_cv_get_e_vertex(&cv);
         printf("e_vertex: %d\n", e_vertex);
-        NUM_TYPE n_step_total = cv_get_n_step_total(&cv);
+        ELECTROCHEMICAL_DEV_KIT_NUMBER_TYPE n_step_total = ELECTROCHEMICAL_DEV_KIT_cv_get_n_step_total(&cv);
         printf("n_step_total: %d\n", n_step_total);
-        RATE_TYPE scan_rate = cv_get_scan_rate(&cv);
+        ELECTROCHEMICAL_DEV_KIT_RATE_TYPE scan_rate = ELECTROCHEMICAL_DEV_KIT_cv_get_scan_rate(&cv);
         printf("scan_rate: %f\n", scan_rate);
-        TIME_TYPE t_ramp = cv_get_t_ramp(&cv);
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_ramp = ELECTROCHEMICAL_DEV_KIT_cv_get_t_ramp(&cv);
         printf("t_ramp: %d\n", t_ramp);
-        TIME_TYPE t_total = cv_get_t_total(&cv);
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_total = ELECTROCHEMICAL_DEV_KIT_cv_get_t_total(&cv);
         printf("t_total: %d\n", t_total);
         // clang-format on
     }
@@ -228,17 +200,20 @@ static void print_cv()
     if (shows.flags & SHOW_MASK_results)
     {
         printf("========== Results ==========\n");
-        NUM_TYPE n_step_total = cv_get_n_step_total(&cv);
+        ELECTROCHEMICAL_DEV_KIT_NUMBER_TYPE n_step_total =
+            ELECTROCHEMICAL_DEV_KIT_cv_get_n_step_total(&cv);
 
         for (size_t i = 0; i < n_step_total; i++)
         {
-            ENERGY_TYPE e_energy = cv_get_energy_by_index(&cv, i);
-            printf("e_energy[%ld]: %d\n", i, e_energy);
+            ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_at =
+                ELECTROCHEMICAL_DEV_KIT_cv_get_e_at_index(&cv, i);
+            printf("e_at[%ld]: %d\n", i, e_at);
         }
         for (size_t i = 0; i < n_step_total; i++)
         {
-            TIME_TYPE t_time = cv_get_time_by_index(&cv, i);
-            printf("t_time[%ld]: %d\n", i, t_time);
+            ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_at =
+                ELECTROCHEMICAL_DEV_KIT_cv_get_t_at_index(&cv, i);
+            printf("t_at[%ld]: %d\n", i, t_at);
         }
     }
 }
@@ -246,7 +221,7 @@ static void print_cv()
 static void print_dpv()
 {
     printf("========== DPV ==========\n");
-    if (dpv_is_vaild(&dpv) == false)
+    if (ELECTROCHEMICAL_DEV_KIT_dpv_is_vaild(&dpv) == false)
     {
         printf("DPV is invalid.\n");
         return;
@@ -258,7 +233,7 @@ static void print_dpv()
             STRINGIZE_THIS(dpv_params),
             STRINGIZE_THIS(dpv),
             &dpv,
-            sizeof(dpv_params)
+            sizeof(ELECTROCHEMICAL_DEV_KIT_dpv_params)
         );
     }
 
@@ -274,15 +249,15 @@ static void print_dpv()
         printf("n_step: %d\n", dpv.n_step);
 
         printf("========== Derived Attributes ==========\n");
-        ENERGY_TYPE e_end = dpv_get_e_end(&dpv);
+        ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_end = ELECTROCHEMICAL_DEV_KIT_dpv_get_e_end(&dpv);
         printf("e_end: %d\n", e_end);
-        NUM_TYPE n_step_total = dpv_get_n_step_total(&dpv);
+        ELECTROCHEMICAL_DEV_KIT_NUMBER_TYPE n_step_total = ELECTROCHEMICAL_DEV_KIT_dpv_get_n_step_total(&dpv);
         printf("n_step_total: %d\n", n_step_total);
-        RATE_TYPE scan_rate = dpv_get_scan_rate(&dpv);
+        ELECTROCHEMICAL_DEV_KIT_RATE_TYPE scan_rate = ELECTROCHEMICAL_DEV_KIT_dpv_get_scan_rate(&dpv);
         printf("scan_rate: %f\n", scan_rate);
-        TIME_TYPE t_interval = dpv_get_t_interval(&dpv);
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_interval = ELECTROCHEMICAL_DEV_KIT_dpv_get_t_interval(&dpv);
         printf("t_interval: %d\n", t_interval);
-        TIME_TYPE t_total = dpv_get_t_total(&dpv);
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_total = ELECTROCHEMICAL_DEV_KIT_dpv_get_t_total(&dpv);
         printf("t_total: %d\n", t_total);
         // clang-format on
     }
@@ -290,62 +265,69 @@ static void print_dpv()
     if (shows.flags & SHOW_MASK_results)
     {
         printf("========== Results ==========\n");
-        NUM_TYPE n_step_total = dpv_get_n_step_total(&dpv);
+        ELECTROCHEMICAL_DEV_KIT_NUMBER_TYPE n_step_total =
+            ELECTROCHEMICAL_DEV_KIT_dpv_get_n_step_total(&dpv);
 
         for (size_t i = 0; i < dpv.n_step; i++)
         {
-            ENERGY_TYPE e_energy_pulse = dpv_get_energy_by_index(
-                &dpv,
-                i,
-                ELECTROCHEMICAL_DPV_SELECTION_PULSE
-            );
-            printf("e_energy_pulse[%ld]: %d\n", i, e_energy_pulse);
+            ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_at_pulse =
+                ELECTROCHEMICAL_DEV_KIT_dpv_get_e_at_index(
+                    &dpv,
+                    i,
+                    ELECTROCHEMICAL_DEV_KIT_dpv_selection_pulse
+                );
+            printf("e_at_pulse[%ld]: %d\n", i, e_at_pulse);
         }
         for (size_t i = 0; i < dpv.n_step; i++)
         {
-            ENERGY_TYPE e_energy_step = dpv_get_energy_by_index(
-                &dpv,
-                i,
-                ELECTROCHEMICAL_DPV_SELECTION_STEP
-            );
-            printf("e_energy_step[%ld]: %d\n", i, e_energy_step);
+            ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_at_step =
+                ELECTROCHEMICAL_DEV_KIT_dpv_get_e_at_index(
+                    &dpv,
+                    i,
+                    ELECTROCHEMICAL_DEV_KIT_dpv_selection_step
+                );
+            printf("e_at_step[%ld]: %d\n", i, e_at_step);
         }
         for (size_t i = 0; i < n_step_total; i++)
         {
-            ENERGY_TYPE e_energy_step_pulse = dpv_get_energy_by_index(
-                &dpv,
-                i,
-                ELECTROCHEMICAL_DPV_SELECTION_STEP_PULSE
-            );
-            printf("e_energy_step_pulse[%ld]: %d\n", i, e_energy_step_pulse);
+            ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_at_step_pulse =
+                ELECTROCHEMICAL_DEV_KIT_dpv_get_e_at_index(
+                    &dpv,
+                    i,
+                    ELECTROCHEMICAL_DEV_KIT_dpv_selection_step_pulse
+                );
+            printf("e_at_step_pulse[%ld]: %d\n", i, e_at_step_pulse);
         }
 
         for (size_t i = 0; i < dpv.n_step; i++)
         {
-            TIME_TYPE t_time_pulse = dpv_get_time_by_index(
-                &dpv,
-                i,
-                ELECTROCHEMICAL_DPV_SELECTION_PULSE
-            );
-            printf("t_time_pulse[%ld]: %d\n", i, t_time_pulse);
+            ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_at_pulse =
+                ELECTROCHEMICAL_DEV_KIT_dpv_get_t_at_index(
+                    &dpv,
+                    i,
+                    ELECTROCHEMICAL_DEV_KIT_dpv_selection_pulse
+                );
+            printf("t_at_pulse[%ld]: %d\n", i, t_at_pulse);
         }
         for (size_t i = 0; i < dpv.n_step; i++)
         {
-            TIME_TYPE t_time_step = dpv_get_time_by_index(
-                &dpv,
-                i,
-                ELECTROCHEMICAL_DPV_SELECTION_STEP
-            );
-            printf("t_time_step[%ld]: %d\n", i, t_time_step);
+            ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_at_step =
+                ELECTROCHEMICAL_DEV_KIT_dpv_get_t_at_index(
+                    &dpv,
+                    i,
+                    ELECTROCHEMICAL_DEV_KIT_dpv_selection_step
+                );
+            printf("t_at_step[%ld]: %d\n", i, t_at_step);
         }
         for (size_t i = 0; i < n_step_total; i++)
         {
-            TIME_TYPE t_time_step_pulse = dpv_get_time_by_index(
-                &dpv,
-                i,
-                ELECTROCHEMICAL_DPV_SELECTION_STEP_PULSE
-            );
-            printf("t_time_step_pulse[%ld]: %d\n", i, t_time_step_pulse);
+            ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_at_step_pulse =
+                ELECTROCHEMICAL_DEV_KIT_dpv_get_t_at_index(
+                    &dpv,
+                    i,
+                    ELECTROCHEMICAL_DEV_KIT_dpv_selection_step_pulse
+                );
+            printf("t_at_step_pulse[%ld]: %d\n", i, t_at_step_pulse);
         }
     }
 }
@@ -353,7 +335,7 @@ static void print_dpv()
 static void print_ramp()
 {
     printf("========== Ramp ==========\n");
-    if (ramp_is_vaild(&ramp) == false)
+    if (ELECTROCHEMICAL_DEV_KIT_ramp_is_vaild(&ramp) == false)
     {
         printf("Ramp is invalid.\n");
         return;
@@ -362,10 +344,10 @@ static void print_ramp()
     if (shows.flags & SHOW_MASK_structs)
     {
         print_structs(
-            STRINGIZE_THIS(ramp_params),
+            STRINGIZE_THIS(ELECTROCHEMICAL_DEV_KIT_ramp_params),
             STRINGIZE_THIS(ramp),
             &ramp,
-            sizeof(ramp_params)
+            sizeof(ELECTROCHEMICAL_DEV_KIT_ramp_params)
         );
     }
 
@@ -379,11 +361,11 @@ static void print_ramp()
         printf("t_step: %d\n", ramp.t_step);
 
         printf("========== Derived Attributes ==========\n");
-        ENERGY_TYPE e_end = ramp_get_e_end(&ramp);
+        ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_end = ELECTROCHEMICAL_DEV_KIT_ramp_get_e_end(&ramp);
         printf("e_end: %d\n", e_end);
-        RATE_TYPE scan_rate = ramp_get_scan_rate(&ramp);
+        ELECTROCHEMICAL_DEV_KIT_RATE_TYPE scan_rate = ELECTROCHEMICAL_DEV_KIT_ramp_get_scan_rate(&ramp);
         printf("scan_rate: %f\n", scan_rate);
-        TIME_TYPE t_total = ramp_get_t_total(&ramp);
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_total = ELECTROCHEMICAL_DEV_KIT_ramp_get_t_total(&ramp);
         printf("t_total: %d\n", t_total);
         // clang-format on
     }
@@ -393,13 +375,15 @@ static void print_ramp()
         printf("========== Results ==========\n");
         for (size_t i = 0; i < ramp.n_step; i++)
         {
-            ENERGY_TYPE e_energy = ramp_get_energy_by_index(&ramp, i);
-            printf("e_energy[%ld]: %d\n", i, e_energy);
+            ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_at =
+                ELECTROCHEMICAL_DEV_KIT_ramp_get_e_at_index(&ramp, i);
+            printf("e_at[%ld]: %d\n", i, e_at);
         }
         for (size_t i = 0; i < ramp.n_step; i++)
         {
-            TIME_TYPE t_time = ramp_get_time_by_index(&ramp, i);
-            printf("t_time[%ld]: %d\n", i, t_time);
+            ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_at =
+                ELECTROCHEMICAL_DEV_KIT_ramp_get_t_at_index(&ramp, i);
+            printf("t_at[%ld]: %d\n", i, t_at);
         }
     }
 }
@@ -451,9 +435,15 @@ int main(int argc, char *argv[])
                 }
                 else if (strcmp(long_options[option_index].name, "e_end") == 0)
                 {
-                    ENERGY_TYPE e_end = atoi(optarg);
-                    dpv_set_n_step_by_e_end(&dpv, e_end);
-                    ramp_set_n_step_by_e_end(&ramp, e_end);
+                    ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_end = atoi(optarg);
+                    ELECTROCHEMICAL_DEV_KIT_dpv_set_n_step_by_e_end(
+                        &dpv,
+                        e_end
+                    );
+                    ELECTROCHEMICAL_DEV_KIT_ramp_set_n_step_by_e_end(
+                        &ramp,
+                        e_end
+                    );
                 }
                 else if (strcmp(long_options[option_index].name, "e_pulse") == 0)
                 {
@@ -467,8 +457,11 @@ int main(int argc, char *argv[])
                 }
                 else if (strcmp(long_options[option_index].name, "e_vertex") == 0)
                 {
-                    ENERGY_TYPE e_vertex = atoi(optarg);
-                    cv_set_n_step_by_e_vertex(&cv, e_vertex);
+                    ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE e_vertex = atoi(optarg);
+                    ELECTROCHEMICAL_DEV_KIT_cv_set_n_step_by_e_vertex(
+                        &cv,
+                        e_vertex
+                    );
                 }
                 else if (strcmp(long_options[option_index].name, "n_step") == 0)
                 {
@@ -495,10 +488,19 @@ int main(int argc, char *argv[])
                 }
                 else if (strcmp(long_options[option_index].name, "scan_rate") == 0)
                 {
-                    RATE_TYPE scan_rate = atof(optarg);
-                    cv_set_t_step_by_scan_rate(&cv, scan_rate);
-                    dpv_set_t_step_by_scan_rate(&dpv, scan_rate);
-                    ramp_set_t_step_by_scan_rate(&ramp, scan_rate);
+                    ELECTROCHEMICAL_DEV_KIT_RATE_TYPE scan_rate = atof(optarg);
+                    ELECTROCHEMICAL_DEV_KIT_cv_set_t_step_by_scan_rate(
+                        &cv,
+                        scan_rate
+                    );
+                    ELECTROCHEMICAL_DEV_KIT_dpv_set_t_step_by_scan_rate(
+                        &dpv,
+                        scan_rate
+                    );
+                    ELECTROCHEMICAL_DEV_KIT_ramp_set_t_step_by_scan_rate(
+                        &ramp,
+                        scan_rate
+                    );
                 }
                 else if (strcmp(long_options[option_index].name, "show") == 0)
                 {

@@ -19,7 +19,17 @@ target_sources(
 target_link_libraries(
     tests
     PRIVATE
-        electrochemical
+        electrochemical_dev_kit
+)
+
+target_compile_definitions(
+    electrochemical_dev_kit
+        PUBLIC ELECTROCHEMICAL_DEV_KIT_BOOLEAN_TYPE=bool
+        PUBLIC ELECTROCHEMICAL_DEV_KIT_ENERGY_TYPE=int16_t
+        PUBLIC ELECTROCHEMICAL_DEV_KIT_INDEX_TYPE=uint8_t
+        PUBLIC ELECTROCHEMICAL_DEV_KIT_NUMBER_TYPE=uint8_t
+        PUBLIC ELECTROCHEMICAL_DEV_KIT_RATE_TYPE=float
+        PUBLIC ELECTROCHEMICAL_DEV_KIT_TIME_TYPE=uint16_t
 )
 
 function(AddTest op)
