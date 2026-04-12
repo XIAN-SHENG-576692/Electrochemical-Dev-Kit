@@ -1,4 +1,6 @@
-add_library(electrochemical_dev_kit)
+if(NOT TARGET electrochemical_dev_kit)
+    add_library(electrochemical_dev_kit)
+endif()
 
 file(GLOB SRC_FILES CONFIGURE_DEPENDS "*.h")
 
